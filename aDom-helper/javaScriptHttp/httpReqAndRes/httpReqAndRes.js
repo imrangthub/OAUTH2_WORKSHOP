@@ -5,17 +5,36 @@ const postReqBtn = document.getElementById('postReqBtn');
 const postReqBtnRaw = document.getElementById('postReqBtnRaw');
 
 
-
-
 const getDataReq = () => {
   console.log("getDataReq: Url: "+document.getElementById("getUrlValue").value);
+  if(!document.getElementById("getUrlValue").value){
+    alert("No Url found");
+    return;
+  }
   makeHttpRequest('GET', document.getElementById("getUrlValue").value, {}).then(resData => {
     console.log("RES# ", resData);
+    $('#resultSuccessMsg').text('Success');
+    $('#resultErrMsg').text('');
+    $('#getResValue').val(JSON.stringify(resData));
   })
   .catch(err => {
+    $('#resultErrMsg').text('Error');
+    $('#resultSuccessMsg').text('');
+    $('#getResValue').val('');
+    $('#getResValue').val(JSON.stringify(err));
     console.log(err);
   });
 }
+
+// const getDataReq = () => {
+//   console.log("getDataReq: Url: "+document.getElementById("getUrlValue").value);
+//   makeHttpRequest('GET', document.getElementById("getUrlValue").value, {}).then(resData => {
+//     console.log("RES# ", resData);
+//   })
+//   .catch(err => {
+//     console.log(err);
+//   });
+// }
 
 const postDataReq = () => {
   console.log("postDataReq: Url: "+document.getElementById("postUrlValue").value);

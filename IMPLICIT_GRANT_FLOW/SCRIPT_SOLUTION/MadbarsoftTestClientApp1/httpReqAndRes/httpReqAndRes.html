@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href="custom/application.css" rel="stylesheet">
+</head>
+
+<body>
+    <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li class="dropdown">
+            <a href="javascript:void(0)" class="dropbtn">HTTP</a>
+            <div class="dropdown-content">
+                <a href="httpReqAndRes.html">httpReqAndRes</a>
+            </div>
+        </li>
+    </ul>
+    <header>
+        <h2>XMLHttpRequest</h2>
+    </header>
+    <div id="main">
+        <leftsidebar>
+            <div class="row" style="padding: 20px;">
+         
+			     <label for="getUrlValue">Url:</label>
+                 <input class="http-input-style" type="text" id="getUrlValue" name="urlValue"><br><br>
+    
+                    <br><br>
+				        <button class="btn btn-info" id="getReqBtn">GET REQUEST</button>
+            </div>
+            
+            <div class="row" style="padding: 20px;">
+             
+                <label for="getUrlValue">Res: <span style="color: green;" id="resultSuccessMsg"></span><span style="color: red;" id="resultErrMsg"></span></label>
+                <textarea class="http-input-style"  id="getResValue" name="getResValue">
+                   </textarea> 
+            </div>
+
+            <div class="row" style="padding: 20px;">
+             
+                <label for="getUrlValue">Step 01 (Make a get request for user ID with toke, Like this): <span style="color: green;" id="resultSuccessMsg"></span><span style="color: red;" id="resultErrMsg"></span></label>
+                   <input class="http-input-style" type="text"
+                   value="https://graph.facebook.com/v2.10/me?fields=name&access_token=accessTokenHere"
+                   >
+            </div>
+
+            <div class="row" style="padding: 20px;">
+             
+                <label for="getUrlValue">Step 02 (Make a other request for Other different resource, Like this): <span style="color: green;" id="resultSuccessMsg"></span><span style="color: red;" id="resultErrMsg"></span></label>
+
+                   <input class="http-input-style" type="text"
+                   value="https://graph.facebook.com/v2.10/userIdHere/friends?access_token=accessTokenHere"
+                   >
+            </div>
+            
+ 
+        </leftsidebar>
+       
+        <rightsidebar>
+           
+        </rightsidebar>
+    </div>
+
+
+    <footer>imranmadbar@gmail.com</footer>
+    <script src="custom/application.js"></script>
+    <script src="httpReqAndRes.js"></script>
+    <script src="../scripts/jquery-3.2.1.min.js"></script>
+</body>
+
+</html>
