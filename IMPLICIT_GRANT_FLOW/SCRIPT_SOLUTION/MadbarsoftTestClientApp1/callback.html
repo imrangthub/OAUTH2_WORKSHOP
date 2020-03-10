@@ -12,6 +12,7 @@
                 for (var i = 0; i < responseProperties.length; i++) {
                     if (responseProperties[i].indexOf("access_token=") === 0) {
                         accessToken = responseProperties[i].split("=")[1];
+						console.log("Access Token: "+accessToken);
                         break;
                     }
                 }
@@ -22,11 +23,13 @@
                 //ajax GET call to get user ID
                 $.get(userEndpoint, function(data, status){
                     userId = data.id;
-
+					console.log("User ID Res: "+JSON.stringify(data));
+                    console.log("User ID: "+userId);
                     var friendListEndpoint = "https://graph.facebook.com/v2.10/" + userId + "/friends?access_token=" +
                                                                                                       accessToken;
 
                     $.get(friendListEndpoint, function(data, status){
+					    console.log("Final res:"+JSON.stringify(data));
                         $("#response").html(JSON.stringify(data));
                     });
                 });
