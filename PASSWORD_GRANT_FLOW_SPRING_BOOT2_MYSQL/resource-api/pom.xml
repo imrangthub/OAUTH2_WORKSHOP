@@ -10,7 +10,7 @@
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- The main class to start by executing java -jar -->
-		<oauth.version>2.3.3.RELEASE</oauth.version>
+		<oauth.version>2.3.6.RELEASE</oauth.version>
 		<oauth-config.version>5.1.3.RELEASE</oauth-config.version>
 		<jwt.version>1.0.9.RELEASE</jwt.version>
 		<!-- <start-class>com.madbarsoft.SpringBootResourceServerApplication</start-class> -->
