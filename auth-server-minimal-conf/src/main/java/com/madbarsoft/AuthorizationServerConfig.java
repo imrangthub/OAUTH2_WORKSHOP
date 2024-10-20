@@ -83,7 +83,7 @@ public class AuthorizationServerConfig {
 
 	@Bean 
 	public RegisteredClientRepository registeredClientRepository() {
-		RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
+		RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
 				.clientId("myclientid")
 				.clientSecret("{noop}myclientsec")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
@@ -97,9 +97,14 @@ public class AuthorizationServerConfig {
 				.clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
 				.build();
 
-		return new InMemoryRegisteredClientRepository(oidcClient);
+		return new InMemoryRegisteredClientRepository(registeredClient);
 	}
 
+	@Bean 
+	public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
+	  return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
+	}
+	 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
         KeyPair keyPair = generateRsaKey();
@@ -124,13 +129,7 @@ public class AuthorizationServerConfig {
     }
 
 
-	@Bean public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-	  return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
-	  }
-	 
-    
-    
-    
+   
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder().build();
