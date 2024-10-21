@@ -13,6 +13,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.context.annotation.Bean;
@@ -175,7 +176,7 @@ public class AuthorizationServerConfig {
                 Map<String, Object> additionalClaims = Map.of(
                         "user", "MD IMRAN HOSSAIN",
                         "email", "imranmadbar@gmail.com",
-                        "role", "USER"
+                        "roles", List.of("ROLE_USER", "ROLE_ADMIN","ROLE_SUPER_ADMIN")
                 );
                 context.getClaims().claims(claims -> claims.putAll(additionalClaims));
             }
