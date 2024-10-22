@@ -2,11 +2,11 @@ server:
   port: 9000
 
 
-spring:
-  security:
-    oauth2:
-      authorizationserver:
-        issuer: http://auth-server:9000
+#spring:
+#  security:
+#    oauth2:
+#      authorizationserver:
+#        issuer: http://auth-server:9000
 
         
 

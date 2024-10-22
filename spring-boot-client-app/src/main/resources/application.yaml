@@ -1,0 +1,31 @@
+server:
+  port: 8081
+
+resource:
+  server:
+    url: http://localhost:8080/employee/info
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          my-client-app:
+            client-id: myclientid
+            client-secret: myclientsecret
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8081/callback2
+            scope: read, profile
+            authorization-uri: http://localhost:9000/oauth2/authorize
+            token-uri: http://localhost:9000/oauth2/token
+        provider:
+          my-client-app:
+            authorization-uri: http://localhost:9000/oauth2/authorize
+            token-uri: http://localhost:9000/oauth2/token  # Corrected line
+
+  
+  
+
+#logging:
+#  level:
+#    org.springframework.security: trace

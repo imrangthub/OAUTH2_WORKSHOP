@@ -17,6 +17,7 @@ public class SecurityConfigDefault {
         		.requestMatchers("/home").permitAll()
                 .requestMatchers("/employee/info").hasAuthority("SCOPE_read")
                 .requestMatchers("/role").hasRole("ADMIN")
+                .requestMatchers("/user").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt());
