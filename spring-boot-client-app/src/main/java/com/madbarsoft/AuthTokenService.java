@@ -10,7 +10,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-public class OAuthTokenService {
+public class AuthTokenService {
 
     private String accessToken;  // Cached access token
     private Instant tokenExpiry; // Token expiration time

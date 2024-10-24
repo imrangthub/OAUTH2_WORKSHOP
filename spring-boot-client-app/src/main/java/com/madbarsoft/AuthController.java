@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 @Controller
-public class ResourceController {
+public class AuthController {
 
     @Autowired
-    private OAuthTokenService oAuthTokenService;
+    private AuthTokenService oAuthTokenService;
     
     
   @GetMapping("/")
@@ -20,23 +20,9 @@ public class ResourceController {
       return "home";  // Redirect to the login page
   }
   
-  
-  @GetMapping("/getinfo")
-  public String getinfo(Model model) {
+ 
 
-	     String token = oAuthTokenService.getAccessToken();
-
-      // Access the resource server with the token
-      String result = accessResourceWithToken(token);
-
-      System.out.println("ResourceServerRes: " + result);
-      
-      model.addAttribute("result", result);
-
-      return "result";  // Show the result on the result page
-  }
-
-    @GetMapping("/callback2")
+    @GetMapping("/callback")
     public String callback(@RequestParam("code") String code, Model model) {
         // Get or fetch the access token
         String token = oAuthTokenService.getAccessToken(code);

@@ -1,4 +1,4 @@
-package com.madbarsoft;
+package com.madbarsoft.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/login", "/callback").permitAll()
-                .requestMatchers("/home").permitAll()
+                .requestMatchers("/***").permitAll()
                 .requestMatchers("/callback2").permitAll()
                 .requestMatchers("/callback").permitAll()
                 .requestMatchers("/getinfo").permitAll()

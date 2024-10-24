@@ -16,12 +16,14 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -44,6 +46,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -66,20 +69,28 @@ public class AuthorizationServerConfig {
                         new LoginUrlAuthenticationEntryPoint("/login"),
                         new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
                 )
-        ).oauth2ResourceServer(resourceServer -> resourceServer.jwt(Customizer.withDefaults()));
+        )
+        .oauth2ResourceServer(resourceServer -> resourceServer.jwt(Customizer.withDefaults()));
 
         return http.build();
     }
+    
+    
 
-    @Bean
-    @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorize -> authorize
-        		.anyRequest()
-        		.authenticated())
-            .formLogin(Customizer.withDefaults());
-        return http.build();
-    }
+	@Bean
+	@Order(2)
+	public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(authorize -> authorize
+				.anyRequest().authenticated())
+				.formLogin(Customizer.withDefaults())
+				  .logout(logout -> logout
+			                .logoutUrl("/logout")  // Set the logout URL.
+			                .logoutSuccessUrl("/login?logout")  // Redirect to login after logout.
+			                .invalidateHttpSession(true)  // Invalidate session.
+			                .deleteCookies("JSESSIONID")  // Delete cookies.
+			            );
+		return http.build();
+	}
 
     
     @Bean
@@ -87,7 +98,7 @@ public class AuthorizationServerConfig {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         UserDetails userDetails = User.withUsername("imran")
                 .password(encoder.encode("mypass"))
-                .roles("USER")
+                .roles("ADMIN")
                 .build();
         return new InMemoryUserDetailsManager(userDetails);
     }
@@ -102,8 +113,28 @@ public class AuthorizationServerConfig {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-    			.redirectUri("http://localhost:8081/callback2")
-//				.postLogoutRedirectUri("http://127.0.0.1:8080/home")
+    			.redirectUri("http://localhost:7070/callback")
+                .scope("profile")
+                .scope("read")
+                .scope("write")
+                .scope("openid") // Required for ID Token
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenTimeToLive(Duration.ofMinutes(5))
+                        .refreshTokenTimeToLive(Duration.ofHours(2))
+                        .build())
+                .clientSettings(ClientSettings.builder()
+                        .requireAuthorizationConsent(true)  // Ensure user consent is required.
+                        .settings(settings -> settings.put("prompt", "consent")) // Always prompt for consent.
+                        .build())
+                .build();
+        
+        RegisteredClient registeredClient2 = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("myclientid2")
+    			.clientSecret("{noop}myclientsec2")
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+    			.redirectUri("http://localhost:7070/callback2")
                 .scope("profile")
                 .scope("read")
                 .scope("write")
@@ -115,7 +146,7 @@ public class AuthorizationServerConfig {
     			.clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
 
-        return new InMemoryRegisteredClientRepository(registeredClient);
+        return new InMemoryRegisteredClientRepository(registeredClient,registeredClient2);
     }
 
     @Bean
@@ -174,9 +205,9 @@ public class AuthorizationServerConfig {
         return context -> {
             if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
                 Map<String, Object> additionalClaims = Map.of(
-                        "user", "MD IMRAN HOSSAIN",
-                        "email", "imranmadbar@gmail.com",
-                        "roles", List.of("ROLE_USER", "ROLE_ADMIN","ROLE_SUPER_ADMIN")
+                        "user", "SYSTEM ADMIN",
+                        "email", "system@gmail.com",
+                        "roles", List.of("ROLE_SYSTEM_USER", "ROLE_SYSTEM_ADMIN")
                 );
                 context.getClaims().claims(claims -> claims.putAll(additionalClaims));
             }

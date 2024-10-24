@@ -14,10 +14,11 @@ public class SecurityConfigDefault {
         http
             .authorizeHttpRequests(authz -> authz
         		.requestMatchers("/error").permitAll()
-        		.requestMatchers("/home").permitAll()
-                .requestMatchers("/employee/info").hasAuthority("SCOPE_read")
-                .requestMatchers("/role").hasRole("ADMIN")
-                .requestMatchers("/user").permitAll()
+        		.requestMatchers("/","/home").permitAll()
+        		.requestMatchers("/role").permitAll()
+        		.requestMatchers("/user").permitAll()
+                .requestMatchers("/resource1").hasRole("ADMIN")
+                .requestMatchers("/resource2").hasAuthority("SCOPE_read")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt());
