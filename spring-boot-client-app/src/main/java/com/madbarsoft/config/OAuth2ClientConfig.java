@@ -12,9 +12,9 @@ public class OAuth2ClientConfig {
 
 
     private ClientRegistration myClientAppRegistration() {
-        return ClientRegistration.withRegistrationId("my-client-app")
-                .clientId("myclientid")
-                .clientSecret("myclientsecret")
+        return ClientRegistration.withRegistrationId("spring-boot-client-app")
+                .clientId("spring-boot-client-app")
+                .clientSecret("spring-boot-client-app-sec")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("http://localhost:7070/callback")
                 .scope("read", "profile")

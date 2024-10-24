@@ -16,13 +16,24 @@ public class AuthTokenService {
     private Instant tokenExpiry; // Token expiration time
 
     private final String tokenEndpoint = "http://localhost:9000/oauth2/token"; // Adjust as per your auth server
-    private final String clientId = "myclientid";
-    private final String clientSecret = "myclientsec";
-    private final String redirectUri = "http://localhost:8081/callback2";
+    private final String clientId = "spring-boot-client-app";
+    private final String clientSecret = "spring-boot-client-app-sec";
+    private final String redirectUri = "http://localhost:7070/callback";
     
+    
+    
+    public void removeToken() {
+         this.accessToken=null;
+           
+        }
     
     public String getAccessToken() {
-    	 return accessToken;
+        // Check if the token is still valid
+        if (accessToken != null && tokenExpiry != null && Instant.now().isBefore(tokenExpiry)) {
+            System.out.println("Using cached access token");
+            return accessToken;
+        }
+         return null;
            
         }
 

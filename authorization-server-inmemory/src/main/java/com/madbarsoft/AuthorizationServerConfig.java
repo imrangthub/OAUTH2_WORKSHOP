@@ -13,6 +13,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -60,18 +62,12 @@ public class AuthorizationServerConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-    	
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults()); // Enable OpenID Connect 1.0
-
         http.exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(
                         new LoginUrlAuthenticationEntryPoint("/login"),
-                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-                )
-        )
+                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
         .oauth2ResourceServer(resourceServer -> resourceServer.jwt(Customizer.withDefaults()));
-
         return http.build();
     }
     
@@ -87,8 +83,7 @@ public class AuthorizationServerConfig {
 			                .logoutUrl("/logout")  // Set the logout URL.
 			                .logoutSuccessUrl("/login?logout")  // Redirect to login after logout.
 			                .invalidateHttpSession(true)  // Invalidate session.
-			                .deleteCookies("JSESSIONID")  // Delete cookies.
-			            );
+			                .deleteCookies("JSESSIONID"));
 		return http.build();
 	}
 
@@ -98,7 +93,7 @@ public class AuthorizationServerConfig {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         UserDetails userDetails = User.withUsername("imran")
                 .password(encoder.encode("mypass"))
-                .roles("ADMIN")
+                .roles("ADMIN","USER","SUPER_ADMIN")
                 .build();
         return new InMemoryUserDetailsManager(userDetails);
     }
@@ -107,7 +102,26 @@ public class AuthorizationServerConfig {
     
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
+    	
         RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("spring-boot-client-app")
+    			.clientSecret("{noop}spring-boot-client-app-sec")
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+    			.redirectUri("http://localhost:7070/callback")
+                .scope("profile")
+                .scope("read")
+                .scope("write")
+                .scope("openid") // Required for ID Token
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenTimeToLive(Duration.ofMinutes(5))
+                        .refreshTokenTimeToLive(Duration.ofHours(20))
+                        .build())
+    			.clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
+                .build();
+        
+        RegisteredClient registeredClient2 = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("myclientid")
     			.clientSecret("{noop}myclientsec")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
@@ -120,28 +134,7 @@ public class AuthorizationServerConfig {
                 .scope("openid") // Required for ID Token
                 .tokenSettings(TokenSettings.builder()
                         .accessTokenTimeToLive(Duration.ofMinutes(5))
-                        .refreshTokenTimeToLive(Duration.ofHours(2))
-                        .build())
-                .clientSettings(ClientSettings.builder()
-                        .requireAuthorizationConsent(true)  // Ensure user consent is required.
-                        .settings(settings -> settings.put("prompt", "consent")) // Always prompt for consent.
-                        .build())
-                .build();
-        
-        RegisteredClient registeredClient2 = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("myclientid2")
-    			.clientSecret("{noop}myclientsec2")
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-    			.redirectUri("http://localhost:7070/callback2")
-                .scope("profile")
-                .scope("read")
-                .scope("write")
-                .scope("openid") // Required for ID Token
-                .tokenSettings(TokenSettings.builder()
-                        .accessTokenTimeToLive(Duration.ofMinutes(5))
-                        .refreshTokenTimeToLive(Duration.ofHours(2))
+                        .refreshTokenTimeToLive(Duration.ofHours(20))
                         .build())
     			.clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
@@ -199,16 +192,26 @@ public class AuthorizationServerConfig {
         }
     }
 
-
     @Bean
-    public OAuth2TokenCustomizer<JwtEncodingContext> customTokenEnhancer() {
+    public OAuth2TokenCustomizer<JwtEncodingContext> customTokenEnhancer(UserDetailsService userDetailsService) {
         return context -> {
+            // Check if the token being generated is an access token
             if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
-                Map<String, Object> additionalClaims = Map.of(
-                        "user", "SYSTEM ADMIN",
-                        "email", "system@gmail.com",
-                        "roles", List.of("ROLE_SYSTEM_USER", "ROLE_SYSTEM_ADMIN")
-                );
+                Map<String, Object> additionalClaims = new HashMap<>();
+                // Determine the grant type used
+                String grantType = context.getAuthorizationGrantType().getValue();
+                if (AuthorizationGrantType.CLIENT_CREDENTIALS.getValue().equals(grantType)) {
+                    // If grant type is 'client_credentials', add system-level roles
+                    additionalClaims.put("roles", List.of("ROLE_SYSTEM_USER", "ROLE_SYSTEM_ADMIN"));
+                } else if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equals(grantType)) {
+                    // If grant type is 'authorization_code', get user roles from UserDetailsService
+                    String username = context.getPrincipal().getName();
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    additionalClaims.put("roles", userDetails.getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .toList());
+                }
+                // Add the claims to the JWT
                 context.getClaims().claims(claims -> claims.putAll(additionalClaims));
             }
         };
