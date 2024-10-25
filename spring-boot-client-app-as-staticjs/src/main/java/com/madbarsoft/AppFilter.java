@@ -1,8 +1,7 @@
-package com.madbarsoft.config;
+package com.madbarsoft;
 
 import java.io.IOException;
 
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 

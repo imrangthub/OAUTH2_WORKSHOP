@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: spring-boot-client-app
+    name: spring-boot-client-app-as-staticjs
     
     
 

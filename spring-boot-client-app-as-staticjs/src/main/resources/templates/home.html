@@ -53,7 +53,7 @@
 
 <body>
 	<nav class="navbar navbar-expand-lg">
-		<a class="navbar-brand" href="/">SpringBoot Social LoginApp</a>
+		<a class="navbar-brand" href="/">My SpringBoot Client App</a>
 		<div class="collapse navbar-collapse">
 			<ul class="navbar-nav ml-auto">
 				<li class="nav-item">
@@ -65,18 +65,50 @@
 	</nav>
 	<div class="container">
 		<div class="row justify-content-center">
-			<div class="col-md-12">
+			<div class="col-md-6">
 				<div class="card">
-					<div class="card-header">
-						<h1>Welcome: <div th:text="${name}"></div></h1>
+					<div class="card-header text-center">
+						<h2>Welcome to Home</h2>
+
 					</div>
+					<div th:text="${message}"></div>
 					<div class="card-body text-center">
-									<div th:text="${result}"></div>
+						<a class="btn btn-custom" href="/get-resource1">Get Resource1</a>
+						<a class="btn btn-custom" href="/get-resource2">Get Resource2</a>
 					</div>
+
 				</div>
 			</div>
 		</div>
+
 	</div>
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-header">
+						<p>This is a spring boot web client with no spring-security, its just like work as JS static
+							client App.</p>
+						<p>This service manually check token and if not found the redirect to login page for token,
+							after get token its keep this token cache for sub sequece request.</p>
+							<p>This Client has no configuration or nothing to worry about AuthorizationServer and ResourceServer,
+								Its has the url of Authorizaion server for get AuthorizationCode and internally it exchange code with Token</p> 
+								
+								<p>When get the token
+								Its has ResourceServer URL with the JWT token what is get from AuthorizationServer call for ResourceServer and ResourceServer 
+								Manyally convart the token as a Spring-Security Principal with role and scope, if reqeustin token has proper permission(Role, scope)
+                                then resource server give its protected resource.
+                                </p>
+
+					</div>
+
+
+				</div>
+			</div>
+		</div>
+
+	</div>
+
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
