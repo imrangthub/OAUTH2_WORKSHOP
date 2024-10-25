@@ -1,0 +1,22 @@
+server:
+  port: 8282
+
+
+
+
+# For Online jwt validation with public key from idp server
+
+#spring:
+#  security:
+#    oauth2:
+#      resourceserver: 
+#         jwt:
+#          issuer-uri: http://172.16.8.132:8080/auth/realms/banglalink
+#
+#  
+#  
+  
+
+#logging:
+#  level:
+#    org.springframework.security: trace
